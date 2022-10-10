@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>textbox.ml - simple textbox for editing</title>
+        <link rel="icon" href="/images/logo.svg" loading="true">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Open+Sans&display=swap');
+            * {
+                color: #ffffff;
+            }
+
+            html {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+            }
+            body {
+                background-color: #d8dee9;
+                display: flex;
+                height: 80vh;
+                width: 100vw;
+                margin: 0px;
+                flex-direction: column;
+                width: 75vw;
+                margin-bottom: 10vh;
+                margin-top: 10vh;
+                max-width: 1000px;
+            }
+            
+            #controls {
+                display: flex;
+                flex-direction: row;
+                align-items: flex-start;
+                padding-top: 10px;
+                padding-bottom: 11px;
+                margin-bottom: 4px;
+                user-select: none;
+
+                font-family: 'Open Sans', 'Roboto', sans-serif;
+                height: 30px;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            *::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: #aeaeae;
+                border-radius: 20px;
+            }
+            
+            #controls *:not(:last-child) {
+                margin-right: 7.5px;
+            }
+            .writing:nth-child(2) {
+                margin-right: 0px !important;
+            }
+            #controls * {
+                font-size: 12.5px;
+                white-space: nowrap;
+                height: 15px;
+            }
+            body[mode="writing"] .coding {
+                display: none;
+            }
+            body[mode="coding"] .writing {
+                display: none;
+            }
+            .button {
+                padding: 10px;
+                background-color: #004953;
+                border-radius: 20px;
+                cursor: pointer;
+                transition: .1s;
+            }
+
+            body[mode="writing"] #mode::after {
+                content: "Writing";
+            }
+            body[mode="coding"] #mode::after {
+                content: "Coding";
+            }
+
+            .toggle[on] {
+                background-color: #ae0000;
+                transition: .1s;
+            }
+            .toggle[on]::after {
+                content: ": On";
+            }
+            .toggle:not([on])::after {
+                content: ": Off";
+            }
+
+            textarea {
+                background-color: #004953;
+                outline: none;
+                border: none;
+                resize: none;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                border-radius: 20px;
+                padding: 12px;
+                font-size: 15px;
+            }
+            body[mode="writing"] textarea {
+                font-family: 'Open Sans', 'Roboto', sans-serif;
+            }
+            body[mode="coding"] textarea {
+                font-family: 'JetBrains Mono', monospace;
+            }
+            body[mode="coding"][ligatures] textarea {
+                font-variant-ligatures: normal;
+            }
+            body[mode="coding"]:not([ligatures]) textarea {
+                font-variant-ligatures: none;
+            }
+        </style>
+    </head>
+    <body mode="writing" spellcheck ligatures>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <div id="controls">
+            <div class="button" id="mode">Mode: </div>
+
+            <div class="button toggle writing" id="spellcheck" on>Spellcheck</div>
+
+            <div class="button toggle coding" id="ligatures" on>Ligatures</div>
+            <div class="button coding" id="run">Run as JavaScript</div>
+        </div>
+        <textarea></textarea>
+
+        <script>
+            const body = document.body
+            const textarea = document.querySelector("textarea")
+            const mode = document.querySelector("#mode")
+
+            const set = (k, v) => body.getAttribute(k) ? body.setAttribute(k, v) : (v ? body.setAttribute(k, "") : body.removeAttribute(k))
+            const get = (k) => body.getAttribute(k) ? body.getAttribute(k) : body.hasAttribute(k)
+
+            mode.onclick = () => {
+                set("mode", get("mode") === "writing" ? "coding" : "writing")
+                update()
+            }
+            for(let e of document.querySelectorAll(".toggle")) {
+                e.onclick = () => {
+                    if(e.hasAttribute("on")) {
+                        set(e.id, false)
+                        e.removeAttribute("on")
+                    }
+                    else {
+                        set(e.id, true)
+                        e.setAttribute("on", "")
+                    }
+                    update()
+                }
+            }
+            document.querySelector("#run").onclick = () => {
+                window.eval(textarea.value)
+            }
+
+            function update() {
+                textarea.setAttribute("spellcheck", get("mode") === "coding" ? false : get("spellcheck").toString())
+            }
+            update()
+        </script>
+    </body>
+</html>
